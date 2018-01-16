@@ -19,25 +19,11 @@ class Visualizer:
 		if not action_plan:
 			print("No solution found to goal")
 			action_plan = [world.Direction.EAST]
-		self._format_path(action_plan)
+		#TODO VideoGAmeActions should be a general actions
+		self.traj = world.VideoGameActions.get_trajectory(self.start, action_plan)
 
 	def append_visited(self, state):
 		self.visited.append(state)
-
-	def _format_path(self, action_plan):
-		"""Converts an action plan into a trajectory and sets the trajectory
-		Params
-		---
-		action_plan: a list of action tuples
-		"""
-		N = len(action_plan)
-		traj = np.empty((2,N))
-		traj[:] = np.nan
-		traj[:,0] = np.asarray(self.start)
-		for idx, action in enumerate(action_plan[:-1]):
-			dx, dy = world.BugDynamics.get_vector(action)
-			traj[:,idx+1] = traj[0,idx]+dx, traj[1,idx]+dy
-		self.traj = traj
 
 	def show(self):
 		"""Display the """
@@ -58,7 +44,6 @@ class Visualizer:
 		plt.scatter(self.traj[0],self.traj[1],c='y',s=100)
 		visited = np.asarray(self.visited).T
 		plt.scatter(visited[0],visited[1],c='b')
-		#TODO display the trajectory
 		plt.show()
 
 class MazeLoader:
@@ -153,7 +138,7 @@ def testpointtopointproblem(search_problem_instance):
 	print(search_problem_instance.is_goal((1,2)),"true")
 	print(search_problem_instance.is_goal((2,2)),"false")
 
-def testBugWorld(world_instance):
+def testVideoGameWorld(world_instance):
 	print(world_instance.get_next((0,0),world.Direction.SOUTH), "(0,1)")
 	print(world_instance.is_valid((0,0)), "false")
 	print(world_instance.is_valid((0,-1)), "false")
@@ -171,7 +156,7 @@ def readinput(argv):
 						help="The type of search method used")
 	parser.add_argument("-p", "--searchproblem", type=str, default = "PointSearch",
 					help="The search problem that is being solved")
-	parser.add_argument("-d", "--dynamics", type=str, default="BugWorld",
+	parser.add_argument("-d", "--dynamics", type=str, default="VideoGameWorld",
 				help="The agents dynamics in the world")
 	args = parser.parse_args()
 	return args

@@ -1,6 +1,5 @@
 import copy
 import util
-import search_problem #TODO is this needed?
 import math
 
 def generic_treesearch(searchproblem, priority_function):
@@ -58,7 +57,7 @@ def breadth_first_search(searchproblem):
 def a_star_search(searchproblem):
     def a_star_priorityfn(item):
         state, plan, cost_to_come = item
-        return cost_to_come + euclidean_distance(state, searchproblem)
+        return cost_to_come + manhattan_distance(state, searchproblem)
 
     return generic_treesearch(searchproblem,a_star_priorityfn)
 
