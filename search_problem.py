@@ -16,12 +16,9 @@ class searchProblem:
     @abc.abstractmethod
     def get_successors(Self):
         pass
-    @abc.abstractmethod
-    def get_cost(Self):
-        pass
 
 class PointSearch(searchProblem):
-    def __init__(self, start, goal, world):
+    def __init__(self, start, goal, world_instance):
         """Initializes a point search problem with a single goal and start state
         Params
         ---
@@ -31,7 +28,7 @@ class PointSearch(searchProblem):
         """
         self.goal = goal
         self.start = start
-        self.world = world
+        self.world_instance = world_instance
 
     def get_start(self):
         """Returns the start state for the search problem"""
@@ -46,12 +43,12 @@ class PointSearch(searchProblem):
         successors: a list of successors #TODO should this be a set
         """
         successors = []
-        for action in self.world.actions:
-            next_state = self.world.get_next(state, action)
-            if self.world.is_valid(next_state):
-                cost = self.world.get_cost(state,action)
+        for action in self.world_instance.actions:
+            next_state = self.world_instance.get_next(state, action)
+            if self.world_instance.is_valid(next_state):
+                cost = self.world_instance.get_cost(state,action)
                 successors.append((next_state, action, cost))
-
+        return successors
     def is_goal(self, state):
         """A goal test to check if the goal is reached. for a simple point search this 
         is when the state is the goal state.

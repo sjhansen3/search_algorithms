@@ -50,23 +50,21 @@ class Visualizer:
 		#TODO display the trajectory
 		plt.show()
 
-class Loader:
-	@staticmethod
-	def get_path(folder,file,suffix):
+class MazeLoader:
+	def __init__(self, mazename):
+		self.path = self._get_path(mazename)
+		self.walls = None
+		self.start = None
+		self.end = None
+
+	def _get_path(self, mazename):
 		script_dir = os.path.dirname(os.path.realpath('__file__'))
 		rel_path = 'mazes/'+mazename+'.maze'
 		abs_path = os.path.join(script_dir,rel_path)
 		return abs_path
 
-class MazeLoader:
-	def __init__(self, mazename):
-		self.path = Loader.get_path(mazename)
-		self.walls = None
-		self.start = None
-		self.end = None
-
-	def load():
-		with open(path) as file_handle:
+	def load(self):
+		with open(self.path) as file_handle:
 			lines = file_handle.read().split('\n')
 			h,w = len(lines), len(lines[0])
 		self.walls = np.empty((h,w))
@@ -74,20 +72,22 @@ class MazeLoader:
 		for r, line in enumerate(lines):
 			for c, char in enumerate(line):
 				if char == "X":
-					walls[r,c] = 1
+					self.walls[r,c] = True
 				elif char == " ":
-					walls[r,c] = 0
+					self.walls[r,c] = False
 				elif char == "S":
-					walls[r,c] = 0
-					start = (c,r)
+					self.walls[r,c] = False
+					self.start = (c,r)
+					print("Start set at coordinates", self.start)
 				elif char == "G":
-					print("G", c,r)
-					end = (c,r)
-					walls[r,c] = 0
+					self.end = (c,r)
+					self.walls[r,c] = False
+					print("Goal set at coordinates", self.end)
 				else:
-					print('Error reading file')
-			if start is None or end is None:
-				print('You must specify start or end')
+					print('Error reading file: {} at row: {} col: {}'.format(self.path,r,c))
+		if self.start is None or self.end is None:
+			print(self.start, self.end)
+			print('You must specify start or end')
 
 	def get_start(self):
 		"""gets the start position in state coordinates"""
@@ -96,7 +96,7 @@ class MazeLoader:
 		"""gets the end position in state coordinates"""
 		return self.end
 	def get_walls(self):
-		if not np.any(np.isnan(self.walls)):
+		if np.any(np.isnan(self.walls)):
 			print("Warning one of the cells in the grid is nan")
 		return self.walls
 
@@ -107,32 +107,47 @@ def search(mazename,dynamics,searchmethod,searchproblem):
 	start = maze.get_start()
 	goal = maze.get_goal()
 	walls = maze.get_walls()
-	
-	print(maze)
-	# #make world instance
-	# if dynamics not in dir(world):
-	# 	raise AttributeError("dynamics {} is not defined in world.py".format(dynamics))
-	# world_class = getattr(world,dynamics)
-	# world_instance = world_class(walls)
-	
-	# #define the searchproblem
-	# if searchproblem not in dir(search_problem):
-	# 	raise AttributeError("searchproblem {} is not defined in search_problem.py".format(searchmethod))
-	# search_problem_class = getattr(search_problem,searchproblem)
-	# print(search_problem_class,"search_problem_fn")
-	# search_problem_instance = search_problem_class(start, goal, world)
+	print("walls******")
+	print(walls)
+	#make world instance
+	if dynamics not in dir(world):
+		raise AttributeError("dynamics {} is not defined in world.py".format(dynamics))
+	world_class = getattr(world,dynamics)
+	world_instance = world_class(walls)
 
-	# #run the search method
-	# if searchmethod not in dir(search_method):
-	# 	raise AttributeError("searchmethod {} is jnot defined in search_method.py".format(searchmethod))
-	# search_method = getattr(search_method,searchmethod)
+	#define the searchproblem
+	if searchproblem not in dir(search_problem):
+		raise AttributeError("searchproblem {} is not defined in search_problem.py".format(searchmethod))
+	search_problem_class = getattr(search_problem,searchproblem)
+	#print(search_problem_class,"search_problem_class")
+	search_problem_instance = search_problem_class(start, goal, world_instance)
+	testpointtopointproblem(search_problem_instance)
+	#run the search method
+	if searchmethod not in dir(search_method):
+		raise AttributeError("searchmethod {} is jnot defined in search_method.py".format(searchmethod))
+	search_fn = getattr(search_method,searchmethod)
 
-	# action_plan = search_method(search_problem_instance)
-
+	action_plan = search_fn(search_problem_instance)
+	print(action_plan,"[West,South]")
 	# #TODO somhow get the visited list into the visualizer
 	# visualizer = Visualizer(start,goal,walls,action_plan)
 	# visualizer.show()
 
+def testpointtopointproblem(search_problem_instance):
+	print(search_problem_instance.get_successors((1,1)),"EAST and South")
+	print(search_problem_instance.get_successors((2,1)),"West")
+	print(search_problem_instance.get_successors((2,2)),"North and West")
+	print(search_problem_instance.is_goal((1,2)),"true")
+	print(search_problem_instance.is_goal((2,2)),"false")
+
+def testBugWorld(world_instance):
+	print(world_instance.get_next((0,0),world.Direction.SOUTH), "(0,1)")
+	print(world_instance.is_valid((0,0)), "false")
+	print(world_instance.is_valid((0,-1)), "false")
+	print(world_instance.is_valid((1,1)), "true")
+	print(world_instance.get_next((1,1),world.Direction.EAST),"(2,1)")
+	print(world_instance.get_next((3,3),world.Direction.EAST),"(4,3)")
+	print(world_instance.is_valid((4,3)), "false")
 
 def readinput(argv):
 	import argparse

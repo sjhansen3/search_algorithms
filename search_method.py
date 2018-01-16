@@ -52,3 +52,4 @@ def breadth_first_search(searchproblem):
 # def a_star_search(searchproblem):
 #     return generic_treesearch(searchproblem,)
 
+bfs = breadth_first_search

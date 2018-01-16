@@ -11,8 +11,8 @@ class Direction(enum.Enum):
 
 class BugDynamics:
     """Static methods for manipulating Directions"""
-    vectors = { Direction.NORTH:(0,1), 
-                Direction.SOUTH:(0,-1), 
+    vectors = { Direction.NORTH:(0,-1), 
+                Direction.SOUTH:(0,1), 
                 Direction.EAST:(1,0), 
                 Direction.WEST:(-1,0), 
                 Direction.STOP:(0,0)}
@@ -92,8 +92,10 @@ class BugWorld(World):
     """implements a 2D world with NSEW actions"""
     def __init__(self,walls):
         self.actions = [Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST]
-        super().__init__(self,walls,self.actions)
-    
+        super(BugWorld,self).__init__(self.actions,walls)
+        self.width = len(walls)
+        self.height = len(walls[0])
+
     def get_next(self,state,action):
         """Evolve the state for a bug
         Params
@@ -118,10 +120,12 @@ class BugWorld(World):
         """
         #TODO this isnt correct - which way is positive y for a matrix
         # which way is positive y for an image
+        
         col = state[0] #x position is col in matrix
         row = state[1] #y position is row in matrix
-        
-        return not self.walls[row,col]
+        if col >= self.width or row >= self.height:
+            return False
+        return not self.obstacles[row,col]
 
     def get_cost(self, state, action):
         """compute the cost for being in state and taking action
