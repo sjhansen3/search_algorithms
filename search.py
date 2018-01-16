@@ -9,7 +9,7 @@ import world
 class Visualizer:
 	def __init__(self, start, goal, walls, action_plan):
 		self.start = start
-		self.end = end
+		self.goal = goal
 		self.walls = walls
 		self.path = self._format_path(action_plan)
 		self.visited = []
@@ -25,13 +25,15 @@ class Visualizer:
 		"""
 		N = len(action_plan)
 		traj = np.empty((2,N))
-		traj[:] = np.nan()
-		for idx, action in enumerate(action_plan):
+		traj[:] = np.nan
+		traj[:,0] = np.asarray(self.start)
+		for idx, action in enumerate(action_plan[:-1]):
+			print(idx)
 			#TODO is there a difference between matrix coordinates and game coordinates
 			dx, dy = world.BugDynamics.get_vector(action)
-			traj[:,idx] = traj[1,idx]+dx, traj[2,idx]+dy
+			traj[:,idx+1] = traj[0,idx]+dx, traj[1,idx]+dy
 			#TODO test this
-		return traj
+		self.traj = traj
 
 	def show(self):
 		"""Display the """
@@ -44,9 +46,10 @@ class Visualizer:
 		ax.grid(which='both')
 		ax.grid(which='major', alpha=0.5)
 
-		plt.imshow(data["walls"], aspect='auto', cmap='Greys',interpolation='none', origin='upper')
-		plt.scatter(data["start"][0],data["start"][1],c='g',s=300)
-		plt.scatter(data["end"][0],data["end"][1],c='r',s=300)
+		plt.imshow(self.walls, aspect='auto', cmap='Greys',interpolation='none', origin='upper')
+		plt.scatter(self.start[0],self.start[1],c='g',s=300)
+		plt.scatter(self.goal[0],self.goal[1],c='r',s=300)
+		plt.scatter(self.traj[0],self.traj[1],c='y',s=100)
 		#TODO display the trajectory
 		plt.show()
 
@@ -55,7 +58,7 @@ class MazeLoader:
 		self.path = self._get_path(mazename)
 		self.walls = None
 		self.start = None
-		self.end = None
+		self.goal = None
 
 	def _get_path(self, mazename):
 		script_dir = os.path.dirname(os.path.realpath('__file__'))
@@ -80,21 +83,20 @@ class MazeLoader:
 					self.start = (c,r)
 					print("Start set at coordinates", self.start)
 				elif char == "G":
-					self.end = (c,r)
+					self.goal = (c,r)
 					self.walls[r,c] = False
-					print("Goal set at coordinates", self.end)
+					print("Goal set at coordinates", self.goal)
 				else:
 					print('Error reading file: {} at row: {} col: {}'.format(self.path,r,c))
-		if self.start is None or self.end is None:
-			print(self.start, self.end)
-			print('You must specify start or end')
+		if self.start is None or self.goal is None:
+			print('Start or goal is not defined in the file {} properly'.format(self.path))
 
 	def get_start(self):
 		"""gets the start position in state coordinates"""
 		return self.start
 	def get_goal(self):
-		"""gets the end position in state coordinates"""
-		return self.end
+		"""gets the goal position in state coordinates"""
+		return self.goal
 	def get_walls(self):
 		if np.any(np.isnan(self.walls)):
 			print("Warning one of the cells in the grid is nan")
@@ -129,9 +131,9 @@ def search(mazename,dynamics,searchmethod,searchproblem):
 
 	action_plan = search_fn(search_problem_instance)
 	print(action_plan,"[West,South]")
-	# #TODO somhow get the visited list into the visualizer
-	# visualizer = Visualizer(start,goal,walls,action_plan)
-	# visualizer.show()
+	#TODO somhow get the visited list into the visualizer
+	visualizer = Visualizer(start,goal,walls,action_plan)
+	visualizer.show()
 
 def testpointtopointproblem(search_problem_instance):
 	print(search_problem_instance.get_successors((1,1)),"EAST and South")
