@@ -14,7 +14,7 @@ class Direction(enum.Enum):
     SW = 7
 
 class VideoGameActions:
-    """Static methods for manipulating Directions"""
+    """Static methods for manipulating actions (directions)"""
     vectors = { Direction.NORTH:(0,-1), 
                 Direction.SOUTH:(0,1), 
                 Direction.EAST:(1,0), 
@@ -82,6 +82,7 @@ class VideoGameActions:
 #TODO implement a second search problem, multiple goals perhaps
 
 class World:
+    """Abstract world class, defines how states evolve, which states are valid and how cost is assigned"""
     __metaclass__ = abc.ABCMeta
     def __init__(self, actions, obstacles):
         self.actions = actions
@@ -108,7 +109,7 @@ class VideoGameWorld(World):
         self.straight_directions = set(list(Direction)[0:3])
 
     def get_next(self,state,action):
-        """Evolve the state for a VideoGame like world
+        """evolves the state for a VideoGame like world
         Params
         ---
         action: a Direction enum (NSEW)
@@ -121,7 +122,7 @@ class VideoGameWorld(World):
         return (cur_x+dx,cur_y+dy)
 
     def is_valid(self, state):
-        """Checks if a state is valid
+        """checks if a state is valid
         Params
         ---
         state: a tuple representing the position of the robot (x,y)
@@ -137,14 +138,14 @@ class VideoGameWorld(World):
         return not self.obstacles[row,col]
 
     def get_cost(self, state, action):
-        """compute the cost for being in state and taking action
-            Params
-            ---
-            state: a tuple representing (x,y) position
-            action: a Direction enum
-            Returns
-            ---
-            cost: always 1, regardless of the action
+        """computes the cost for being in state and taking action
+        Params
+        ---
+        state: a tuple representing (x,y) position
+        action: a Direction enum
+        Returns
+        ---
+        cost: the distance traveled by the agent
         """
         if action in self.straight_directions:
             return 1

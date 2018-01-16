@@ -38,23 +38,28 @@ def generic_treesearch(searchproblem, priority_function):
     return [] #if there are no more nodes to explore and goal hasn't been found, their is not plan
 
 def bfs_priorityfn(item):
+    """Priority function for bfs"""
     state, plan, cost_to_come = item
     return len(plan)
 
 def manhattan_distance(state, searchproblem):
+    """Manhattan distance heuristic for A* search"""
     x,y = state
     goal_X, goal_y = searchproblem.get_goal()
     return abs(x-goal_X)+abs(y-goal_y)
 
 def euclidean_distance(State, searchproblem):
+    """Euclidean distance heuristic for A* search"""
     x,y = State
     goal_x, goal_y = searchproblem.get_goal()
     return math.sqrt((x-goal_x)**2+(y-goal_y)**2)
 
 def breadth_first_search(searchproblem):
+    """breadth first search algorithm"""
     return generic_treesearch(searchproblem, bfs_priorityfn)
 
 def a_star_search(searchproblem):
+    """ A star search algorithm """
     def a_star_priorityfn(item):
         state, plan, cost_to_come = item
         return cost_to_come + manhattan_distance(state, searchproblem)
