@@ -21,19 +21,18 @@ def generic_treesearch(searchproblem, priority_function):
     while not fringe.isEmpty():
         cur_state, cur_plan, cur_cost = fringe.pop()
 
-        if(searchproblem.is_goal(cur_state)):
+        if searchproblem.is_goal(cur_state):
             return cur_plan
 
         if cur_state not in expanded:
             expanded.add(cur_state)
-            #print "expanding", (currentState, currentPlan, currentWeight)
             for state, direction, cost_to_come in searchproblem.get_successors(cur_state):
                 if state not in expanded:
                     child_plan = copy.deepcopy(cur_plan) #TODO could this be copy
                     child_plan.append(direction)
                     child_cost_to_come = cur_cost+cost_to_come
                     node = (state, child_plan, child_cost_to_come)
-                    #print "adding", node, "to the fringe with priority ", fringe.priorityFunction(node)
+                    #print("adding", state, "to the fringe")
                     fringe.push(node)
 
     return [] #if there are no more nodes to explore and goal hasn't been found, their is not plan

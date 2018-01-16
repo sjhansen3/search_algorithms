@@ -135,8 +135,6 @@ def search(mazename,dynamics,searchmethod,searchproblem):
 		raise AttributeError("searchproblem {} is not defined in search_problem.py".format(searchmethod))
 	search_problem_class = getattr(search_problem,searchproblem)
 	search_problem_instance = search_problem_class(start, goal, world_instance, visualizer)
-	#testpointtopointproblem(search_problem_instance)
-	testlargemaze(search_problem_instance)
 
 	#run the search method
 	if searchmethod not in dir(search_method):
@@ -144,9 +142,6 @@ def search(mazename,dynamics,searchmethod,searchproblem):
 	search_fn = getattr(search_method,searchmethod)
 	action_plan = search_fn(search_problem_instance)
 
-	print(action_plan,"action_plan")
-
-	#TODO somhow get the visited list into the visualizer
 	visualizer.set_action_plan(action_plan)
 	visualizer.show()
 
