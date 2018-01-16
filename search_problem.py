@@ -18,7 +18,7 @@ class searchProblem:
         pass
 
 class PointSearch(searchProblem):
-    def __init__(self, start, goal, world_instance):
+    def __init__(self, start, goal, world_instance, visualizer):
         """Initializes a point search problem with a single goal and start state
         Params
         ---
@@ -29,6 +29,7 @@ class PointSearch(searchProblem):
         self.goal = goal
         self.start = start
         self.world_instance = world_instance
+        self.visualizer = visualizer
 
     def get_start(self):
         """Returns the start state for the search problem"""
@@ -42,6 +43,7 @@ class PointSearch(searchProblem):
         Returns:
         successors: a list of successors #TODO should this be a set
         """
+
         successors = []
         for action in self.world_instance.actions:
             next_state = self.world_instance.get_next(state, action)
@@ -49,6 +51,7 @@ class PointSearch(searchProblem):
                 cost = self.world_instance.get_cost(state,action)
                 successors.append((next_state, action, cost))
         return successors
+
     def is_goal(self, state):
         """A goal test to check if the goal is reached. for a simple point search this 
         is when the state is the goal state.
@@ -59,4 +62,5 @@ class PointSearch(searchProblem):
         ---
         isGoal: boolean, true if the state is the goal
         """
+        self.visualizer.append_visited(state)
         return self.goal==state
