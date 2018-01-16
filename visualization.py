@@ -22,7 +22,6 @@ class Visualizer:
         if not action_plan:
             print("No solution found to goal")
             action_plan = [world.Direction.EAST]
-        #TODO VideoGAmeActions should be a general actions
         self.traj = world.VideoGameActions.get_trajectory(self.start, action_plan)
 
     def append_visited(self, state):
@@ -123,4 +122,3 @@ class MazeLoader:
         if np.any(np.isnan(self.walls)):
             print("Warning one of the cells in the grid is nan")
         return self.walls
-    
