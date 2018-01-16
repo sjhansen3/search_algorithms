@@ -41,14 +41,20 @@ def bfs_priorityfn(item):
     state, plan, cost_to_come = item
     return len(plan)
 
-# def manhattan_heuristic(item):
-#     state, plan, cost_to_come = item
-#     return cost_to_come+
+def manhattan_distance(state, searchproblem):
+    x,y = state
+    goal_X, goal_y = searchproblem.get_goal()
+    return abs(x-goal_X)+abs(y-goal_y)
 
 def breadth_first_search(searchproblem):
     return generic_treesearch(searchproblem, bfs_priorityfn)
 
-# def a_star_search(searchproblem):
-#     return generic_treesearch(searchproblem,)
+def a_star_search(searchproblem):
+    def a_star_priorityfn(item):
+        state, plan, cost_to_come = item
+        return manhattan_distance(state, searchproblem)
+
+    return generic_treesearch(searchproblem,a_star_priorityfn)
 
 bfs = breadth_first_search
+astar = a_star_search

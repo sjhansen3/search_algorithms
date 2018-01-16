@@ -35,6 +35,9 @@ class PointSearch(searchProblem):
         """Returns the start state for the search problem"""
         return self.start
 
+    def get_goal(self):
+        return self.goal
+    
     def get_successors(self, state):
         """finds all valid successors of a state
         Params
