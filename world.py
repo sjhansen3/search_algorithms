@@ -93,8 +93,8 @@ class BugWorld(World):
     def __init__(self,walls):
         self.actions = [Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST]
         super(BugWorld,self).__init__(self.actions,walls)
-        self.width = len(walls)
-        self.height = len(walls[0])
+        self.width = len(walls[0])
+        self.height = len(walls)
 
     def get_next(self,state,action):
         """Evolve the state for a bug
