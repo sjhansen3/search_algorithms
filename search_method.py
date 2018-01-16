@@ -1,6 +1,7 @@
 import copy
 import util
-import search_problem #TODO is thi needed?
+import search_problem #TODO is this needed?
+import math
 
 def generic_treesearch(searchproblem, priority_function):
     """Solve a search tree problem
@@ -46,13 +47,18 @@ def manhattan_distance(state, searchproblem):
     goal_X, goal_y = searchproblem.get_goal()
     return abs(x-goal_X)+abs(y-goal_y)
 
+def euclidean_distance(State, searchproblem):
+    x,y = State
+    goal_x, goal_y = searchproblem.get_goal()
+    return math.sqrt((x-goal_x)**2+(y-goal_y)**2)
+
 def breadth_first_search(searchproblem):
     return generic_treesearch(searchproblem, bfs_priorityfn)
 
 def a_star_search(searchproblem):
     def a_star_priorityfn(item):
         state, plan, cost_to_come = item
-        return manhattan_distance(state, searchproblem)
+        return cost_to_come + euclidean_distance(state, searchproblem)
 
     return generic_treesearch(searchproblem,a_star_priorityfn)
 

@@ -31,12 +31,10 @@ class Visualizer:
 		action_plan: a list of action tuples
 		"""
 		N = len(action_plan)
-		print(action_plan)
 		traj = np.empty((2,N))
 		traj[:] = np.nan
 		traj[:,0] = np.asarray(self.start)
 		for idx, action in enumerate(action_plan[:-1]):
-			print(idx)
 			dx, dy = world.BugDynamics.get_vector(action)
 			traj[:,idx+1] = traj[0,idx]+dx, traj[1,idx]+dy
 		self.traj = traj
@@ -59,7 +57,6 @@ class Visualizer:
 		plt.scatter(self.goal[0],self.goal[1],c='r',s=300)
 		plt.scatter(self.traj[0],self.traj[1],c='y',s=100)
 		visited = np.asarray(self.visited).T
-		print(visited)
 		plt.scatter(visited[0],visited[1],c='b')
 		#TODO display the trajectory
 		plt.show()
