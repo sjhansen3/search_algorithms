@@ -7,32 +7,38 @@ import search_method
 import world
 
 class Visualizer:
-	def __init__(self, start, goal, walls, action_plan):
+	def __init__(self, start, goal, walls):
 		self.start = start
 		self.goal = goal
 		self.walls = walls
-		self.path = self._format_path(action_plan)
 		self.visited = []
+		self.width = len(walls[0])
+		self.height = len(walls)
+
+	def set_action_plan(self, action_plan):
+		if not action_plan:
+			print("No solution found to goal")
+			action_plan = [world.Direction.EAST]
+		self._format_path(action_plan)
+
+	def append_visited(self, state):
+		self.visited.append(state)
 
 	def _format_path(self, action_plan):
-		"""Converts an action plan into a trajectory
+		"""Converts an action plan into a trajectory and sets the trajectory
 		Params
 		---
 		action_plan: a list of action tuples
-		Returns
-		---
-		trajectory: a (2,N) path to the goal
 		"""
 		N = len(action_plan)
+		print(action_plan)
 		traj = np.empty((2,N))
 		traj[:] = np.nan
 		traj[:,0] = np.asarray(self.start)
 		for idx, action in enumerate(action_plan[:-1]):
 			print(idx)
-			#TODO is there a difference between matrix coordinates and game coordinates
 			dx, dy = world.BugDynamics.get_vector(action)
 			traj[:,idx+1] = traj[0,idx]+dx, traj[1,idx]+dy
-			#TODO test this
 		self.traj = traj
 
 	def show(self):
@@ -40,16 +46,21 @@ class Visualizer:
 		len_c, len_r  = np.shape(self.walls)
 		fig = plt.figure()
 		ax = fig.add_subplot(1, 1, 1)
-		major_ticks = np.arange(0.5, 10, 1)
-		ax.set_xticks(major_ticks)
-		ax.set_yticks(major_ticks)
+		y_ticks = np.arange(0.5, self.height, 1)
+		print(self.width)
+		x_ticks = np.arange(0.5, self.width, 1)
+		ax.set_xticks(x_ticks)
+		ax.set_yticks(y_ticks)
 		ax.grid(which='both')
 		ax.grid(which='major', alpha=0.5)
 
-		plt.imshow(self.walls, aspect='auto', cmap='Greys',interpolation='none', origin='upper')
+		plt.imshow(self.walls, aspect='equal', cmap='Greys',interpolation='none', origin='upper')
 		plt.scatter(self.start[0],self.start[1],c='g',s=300)
 		plt.scatter(self.goal[0],self.goal[1],c='r',s=300)
 		plt.scatter(self.traj[0],self.traj[1],c='y',s=100)
+		visited = np.asarray(self.visited).T
+		print(visited)
+		plt.scatter(visited[0],visited[1],c='b')
 		#TODO display the trajectory
 		plt.show()
 
@@ -117,23 +128,31 @@ def search(mazename,dynamics,searchmethod,searchproblem):
 	world_class = getattr(world,dynamics)
 	world_instance = world_class(walls)
 
+	visualizer = Visualizer(start,goal,walls)
+
 	#define the searchproblem
 	if searchproblem not in dir(search_problem):
 		raise AttributeError("searchproblem {} is not defined in search_problem.py".format(searchmethod))
 	search_problem_class = getattr(search_problem,searchproblem)
-	#print(search_problem_class,"search_problem_class")
-	search_problem_instance = search_problem_class(start, goal, world_instance)
-	testpointtopointproblem(search_problem_instance)
+	search_problem_instance = search_problem_class(start, goal, world_instance, visualizer)
+	#testpointtopointproblem(search_problem_instance)
+	testlargemaze(search_problem_instance)
+
 	#run the search method
 	if searchmethod not in dir(search_method):
 		raise AttributeError("searchmethod {} is jnot defined in search_method.py".format(searchmethod))
 	search_fn = getattr(search_method,searchmethod)
-
 	action_plan = search_fn(search_problem_instance)
-	print(action_plan,"[West,South]")
+
+	print(action_plan,"action_plan")
+
 	#TODO somhow get the visited list into the visualizer
-	visualizer = Visualizer(start,goal,walls,action_plan)
+	visualizer.set_action_plan(action_plan)
 	visualizer.show()
+
+def testlargemaze(search_problem_instance):
+	prob = search_problem_instance
+	print(prob.get_successors((9,2)),"EAST,WEST")
 
 def testpointtopointproblem(search_problem_instance):
 	print(search_problem_instance.get_successors((1,1)),"EAST and South")
@@ -167,7 +186,5 @@ def readinput(argv):
 
 if __name__ == '__main__':
 	options = readinput(sys.argv)
-	#print(options)
 	search(**vars(options))
-	#print(options)
 	
