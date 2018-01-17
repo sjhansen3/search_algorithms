@@ -59,7 +59,7 @@ def breadth_first_search(searchproblem):
     return generic_treesearch(searchproblem, bfs_priorityfn)
 
 def a_star_search(searchproblem):
-    """ A star search algorithm """
+    """A star search algorithm """
     def a_star_priorityfn(item):
         state, plan, cost_to_come = item
         return cost_to_come + manhattan_distance(state, searchproblem)
